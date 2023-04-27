@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from matplotlib.widgets import Button
 import random
 
 
@@ -49,14 +50,54 @@ class sorting_algorithm_visualizer:
         self.operations += 1
 
 
+class buttons:
+    def __init__(self):
+        self.selected_algorithm = None
+
+    def start_visualization(self, event):
+        if self.selected_algorithm is not None:
+            self.selected_algorithm(arr)
+            plt.show()
+
+    def select_algorithm(self, event, algorithm: algorithms):
+        self.selected_algorithm = algorithm
+
+    def create_buttons(self):
+        ax_bubble = plt.axes([0.1, 0.05, 0.2, 0.075])
+        ax_selection = plt.axes([0.4, 0.05, 0.2, 0.075])
+        ax_insertion = plt.axes([0.7, 0.05, 0.2, 0.075])
+        ax_start = plt.axes([0.4, 0.15, 0.2, 0.075])
+
+        self.btn_bubble = Button(ax_bubble, "Bubble Sort")
+        self.btn_bubble.on_clicked(
+            lambda event: self.select_algorithm(event, algorithm.bubble_sort)
+        )
+
+        self.btn_selection = Button(ax_selection, "Selection Sort")
+        self.btn_selection.on_clicked(
+            lambda event: self.select_algorithm(event, algorithm.selection_sort)
+        )
+
+        self.btn_insertion = Button(ax_insertion, "Insertion Sort")
+        self.btn_insertion.on_clicked(
+            lambda event: self.select_algorithm(event, algorithm.insertion_sort)
+        )
+
+        self.btn_start = Button(ax_start, "Start")
+        self.btn_start.on_clicked(self.start_visualization)
+
+
 visualizer = sorting_algorithm_visualizer(0.001)
 algorithm = algorithms()
+btn_handler = buttons()
 
 if __name__ == "__main__":
     arr = [random.randint(1, 100) for _ in range(30)]
 
-    algorithm.bubble_sort(arr)
-    # algorithm.selection_sort(arr)
-    # algorithm.insertion_sort(arr)
-    print(visualizer.operations)
+    fig = plt.figure()
+    plt.subplots_adjust(bottom=0.2)
+    ax_bar = fig.add_subplot(111)
+
+    visualizer.display_bar(arr)
+    btn_handler.create_buttons()
     plt.show()

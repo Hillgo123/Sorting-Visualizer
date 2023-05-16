@@ -16,7 +16,7 @@ class algorithms:
             for j in range(0, len(arr) - i - 1):
                 if arr[j] > arr[j + 1]:
                     arr[j], arr[j + 1] = arr[j + 1], arr[j]
-                visualizer.display_bar(arr, j)
+                visualizer.display_bar(arr, j + 1)
 
         btn_handler.create_btns()
 
@@ -44,6 +44,93 @@ class algorithms:
                 j -= 1
             arr[j + 1] = key
             visualizer.display_bar(arr, j)
+
+        btn_handler.create_btns()
+
+    def merge_sort(self, arr: list):
+        """Sorts the array using merge sort"""
+
+        def merge(left, right):
+            result = []
+            i = j = 0
+            while i < len(left) and j < len(right):
+                if left[i] < right[j]:
+                    result.append(left[i])
+                    i += 1
+                else:
+                    result.append(right[j])
+                    j += 1
+            result.extend(left[i:])
+            result.extend(right[j:])
+            return result
+
+        def merge_sort_recursive(arr):
+            if len(arr) <= 1:
+                return arr
+            mid = len(arr) // 2
+            left = merge_sort_recursive(arr[:mid])
+            right = merge_sort_recursive(arr[mid:])
+            return merge(left, right)
+
+        sorted_arr = merge_sort_recursive(arr)
+        for i, value in enumerate(sorted_arr):
+            arr[i] = value
+            visualizer.display_bar(arr, i)
+
+        btn_handler.create_btns()
+
+    def quick_sort(self, arr: list):
+        """Sorts the array using quick sort"""
+
+        def partition(low, high):
+            pivot = arr[high]
+            i = low - 1
+            for j in range(low, high):
+                if arr[j] < pivot:
+                    i += 1
+                    arr[i], arr[j] = arr[j], arr[i]
+                    visualizer.display_bar(arr, j)
+            arr[i + 1], arr[high] = arr[high], arr[i + 1]
+            visualizer.display_bar(arr, i + 1)
+            return i + 1
+
+        def quick_sort_recursive(low, high):
+            if low < high:
+                pi = partition(low, high)
+                quick_sort_recursive(low, pi - 1)
+                quick_sort_recursive(pi + 1, high)
+
+        quick_sort_recursive(0, len(arr) - 1)
+        btn_handler.create_btns()
+
+    def heap_sort(self, arr: list):
+        """Sorts the array using heap sort"""
+
+        def heapify(n, i):
+            largest = i
+            left = 2 * i + 1
+            right = 2 * i + 2
+
+            if left < n and arr[left] > arr[largest]:
+                largest = left
+
+            if right < n and arr[right] > arr[largest]:
+                largest = right
+
+            if largest != i:
+                arr[i], arr[largest] = arr[largest], arr[i]
+                visualizer.display_bar(arr, i)
+                heapify(n, largest)
+
+        n = len(arr)
+
+        for i in range(n // 2 - 1, -1, -1):
+            heapify(n, i)
+
+        for i in range(n - 1, 0, -1):
+            arr[i], arr[0] = arr[0], arr[i]
+            visualizer.display_bar(arr, i)
+            heapify(i, 0)
 
         btn_handler.create_btns()
 
@@ -89,6 +176,12 @@ class buttons:
             self.selected_algorithm = algorithm.selection_sort
         elif label == "Insertion Sort":
             self.selected_algorithm = algorithm.insertion_sort
+        elif label == "Merge Sort":
+            self.selected_algorithm = algorithm.merge_sort
+        elif label == "Quick Sort":
+            self.selected_algorithm = algorithm.quick_sort
+        elif label == "Heap Sort":
+            self.selected_algorithm = algorithm.heap_sort
 
     def new_array(self, event: Button):
         """Creates a new array and displays it on the screen"""
@@ -109,13 +202,21 @@ class buttons:
     def create_btns(self):
         """Creates the buttons on the screen"""
 
-        ax_algorithm = plt.axes([0.1, 0.05, 0.2, 0.15])
-        ax_start = plt.axes([0.4, 0.05, 0.2, 0.075])
-        ax_new_array = plt.axes([0.7, 0.05, 0.2, 0.075])
-        ax_array_size = plt.axes([0.4, 0.15, 0.2, 0.03])
+        ax_algorithm = plt.axes([0.05, 0.05, 0.2, 0.2])
+        ax_start = plt.axes([0.35, 0.05, 0.25, 0.075])
+        ax_new_array = plt.axes([0.65, 0.05, 0.25, 0.075])
+        ax_array_size = plt.axes([0.375, 0.2, 0.25, 0.03])
 
         self.radio_algorithm = RadioButtons(
-            ax_algorithm, ["Bubble Sort", "Selection Sort", "Insertion Sort"]
+            ax_algorithm,
+            [
+                "Bubble Sort",
+                "Selection Sort",
+                "Insertion Sort",
+                "Merge Sort",
+                "Quick Sort",
+                "Heap Sort",
+            ],
         )
         self.radio_algorithm.on_clicked(self.select_algorithm)
 
@@ -137,16 +238,16 @@ class buttons:
         self.slider_array_size.on_changed(self.update_array_size)
 
 
-visualizer = sorting_algorithm_visualizer(0.001)
+visualizer = sorting_algorithm_visualizer(0.0001)
 algorithm = algorithms()
 btn_handler = buttons()
 
 if __name__ == "__main__":
     arr = [random.randint(1, 100) for _ in range(30)]
 
-    fig = plt.figure()
+    fig = plt.figure(figsize=(12, 8))
     fig.canvas.manager.set_window_title("Sorting Algorithm Visualizer")
-    plt.subplots_adjust(bottom=0.2)
+    plt.subplots_adjust(bottom=0.3)
     ax_bar = fig.add_subplot(111)
 
     visualizer.display_bar(arr)

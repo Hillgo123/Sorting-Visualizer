@@ -1,6 +1,27 @@
 import matplotlib.pyplot as plt
-from matplotlib.widgets import Button, RadioButtons, Slider
+from matplotlib.widgets import Button, RadioButtons, Slider, CheckButtons
 import random
+import time
+
+
+class sorting_algorithm_visualizer:
+    """Visualizes the sorting algorithm"""
+
+    def __init__(self, operation_delay: float):
+        self.operation_delay = operation_delay
+        self.operations = 0
+
+    def display_bar(self, arr: list, current_index: int = None):
+        """Displays the bars on the screen"""
+
+        plt.clf()
+        bar_colors = ["blue" if i != current_index else "red" for i in range(len(arr))]
+        plt.bar(range(len(arr)), arr, color=bar_colors)
+        plt.title(
+            f"Algorithm: {btn_handler.selected_algorithm.__name__} Operations: {self.operations}"
+        )
+        self.operations += 1
+        plt.pause(self.operation_delay)
 
 
 class algorithms:
@@ -135,30 +156,13 @@ class algorithms:
         btn_handler.create_btns()
 
 
-class sorting_algorithm_visualizer:
-    """Visualizes the sorting algorithm"""
-
-    def __init__(self, operation_delay: float):
-        self.operation_delay = operation_delay
-        self.operations = 0
-
-    def display_bar(self, arr: list, current_index: int = None):
-        """Displays the bars on the screen"""
-
-        plt.clf()
-        bar_colors = ["blue" if i != current_index else "red" for i in range(len(arr))]
-        plt.bar(range(len(arr)), arr, color=bar_colors)
-        plt.title(f"Operations: {self.operations}")
-        self.operations += 1
-        plt.pause(self.operation_delay)
-
-
 class buttons:
     """Handles the buttons and sliders on the screen"""
 
     def __init__(self):
         self.selected_algorithm = algorithm.bubble_sort
         self.last_arr = 30
+        self.selected_algorithms = {}
 
     def start_visualization(self, event: Button):
         """Starts the visualization of the selected algorithm"""
@@ -189,6 +193,7 @@ class buttons:
         global arr
         if self.last_arr == len(arr):
             arr = [random.randint(1, 100) for _ in range(self.last_arr)]
+        visualizer.operations = 0
         visualizer.display_bar(arr)
         self.create_btns()
         self.last_arr = len(arr)
@@ -199,6 +204,28 @@ class buttons:
         global arr
         arr = [random.randint(1, 100) for _ in range(arr_size)]
 
+    def compare_algorithms(self, event: Button):
+        """Compares the sorting algorithms"""
+
+        results = []
+
+        for alg_name, alg in self.selected_algorithms.items():
+            arr_copy = arr.copy()
+            visualizer.operations = 0
+            start_time = time.time()
+            self.selected_algorithm = alg
+            alg(arr_copy)
+            end_time = time.time()
+            results.append((alg_name, visualizer.operations, end_time - start_time))
+
+        plt.clf()
+        plt.bar([result[0] for result in results], [result[1] for result in results])
+        plt.xlabel("Algorithms")
+        plt.ylabel("Operations")
+        plt.title("Comparison of Sorting Algorithms")
+        plt.show()
+        self.create_btns()
+
     def create_btns(self):
         """Creates the buttons on the screen"""
 
@@ -206,6 +233,8 @@ class buttons:
         ax_start = plt.axes([0.35, 0.05, 0.25, 0.075])
         ax_new_array = plt.axes([0.65, 0.05, 0.25, 0.075])
         ax_array_size = plt.axes([0.375, 0.2, 0.25, 0.03])
+        ax_compare = plt.axes([0.7, 0.15, 0.2, 0.075])
+        ax_checkboxes = plt.axes([0.05, 0.4, 0.15, 0.4])
 
         self.radio_algorithm = RadioButtons(
             ax_algorithm,
@@ -226,6 +255,9 @@ class buttons:
         self.btn_new_array = Button(ax_new_array, "New Array")
         self.btn_new_array.on_clicked(self.new_array)
 
+        self.btn_compare = Button(ax_compare, "Compare")
+        self.btn_compare.on_clicked(self.compare_algorithms)
+
         self.slider_array_size = Slider(
             ax_array_size,
             "Array Size",
@@ -237,9 +269,40 @@ class buttons:
         )
         self.slider_array_size.on_changed(self.update_array_size)
 
+        self.checkboxes = CheckButtons(
+            ax_checkboxes,
+            [
+                "Bubble Sort",
+                "Selection Sort",
+                "Insertion Sort",
+                "Merge Sort",
+                "Quick Sort",
+                "Heap Sort",
+            ],
+            [False] * 6,
+        )
+        self.checkboxes.on_clicked(self.toggle_algorithm)
 
-visualizer = sorting_algorithm_visualizer(0.0001)
+    def toggle_algorithm(self, label):
+        """Toggles the selected algorithms for comparison"""
+
+        alg = {
+            "Bubble Sort": algorithm.bubble_sort,
+            "Selection Sort": algorithm.selection_sort,
+            "Insertion Sort": algorithm.insertion_sort,
+            "Merge Sort": algorithm.merge_sort,
+            "Quick Sort": algorithm.quick_sort,
+            "Heap Sort": algorithm.heap_sort,
+        }
+
+        if label in self.selected_algorithms:
+            del self.selected_algorithms[label]
+        else:
+            self.selected_algorithms[label] = alg[label]
+
+
 algorithm = algorithms()
+visualizer = sorting_algorithm_visualizer(0.0001)
 btn_handler = buttons()
 
 if __name__ == "__main__":

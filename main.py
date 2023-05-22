@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
-from matplotlib.widgets import Button, RadioButtons, Slider, CheckButtons
+from matplotlib.widgets import Button, Slider, CheckButtons
 import random
-import time
 
 
 class sorting_algorithm_visualizer:
@@ -164,13 +163,6 @@ class buttons:
         self.last_arr = 30
         self.selected_algorithms = {}
 
-    def start_visualization(self, event: Button):
-        """Starts the visualization of the selected algorithm"""
-
-        visualizer.operations = 0
-        self.selected_algorithm(arr)
-        plt.show()
-
     def select_algorithm(self, label: str):
         """Selects the algorithm to be used for sorting"""
 
@@ -212,11 +204,9 @@ class buttons:
         for alg_name, alg in self.selected_algorithms.items():
             arr_copy = arr.copy()
             visualizer.operations = 0
-            start_time = time.time()
             self.selected_algorithm = alg
             alg(arr_copy)
-            end_time = time.time()
-            results.append((alg_name, visualizer.operations, end_time - start_time))
+            results.append((alg_name, visualizer.operations))
 
         plt.clf()
         plt.bar([result[0] for result in results], [result[1] for result in results])
@@ -229,34 +219,16 @@ class buttons:
     def create_btns(self):
         """Creates the buttons on the screen"""
 
-        ax_algorithm = plt.axes([0.05, 0.05, 0.2, 0.2])
+        ax_checkboxes = plt.axes([0.05, 0.05, 0.2, 0.2])
         ax_start = plt.axes([0.35, 0.05, 0.25, 0.075])
         ax_new_array = plt.axes([0.65, 0.05, 0.25, 0.075])
         ax_array_size = plt.axes([0.375, 0.2, 0.25, 0.03])
-        ax_compare = plt.axes([0.7, 0.15, 0.2, 0.075])
-        ax_checkboxes = plt.axes([0.05, 0.4, 0.15, 0.4])
-
-        self.radio_algorithm = RadioButtons(
-            ax_algorithm,
-            [
-                "Bubble Sort",
-                "Selection Sort",
-                "Insertion Sort",
-                "Merge Sort",
-                "Quick Sort",
-                "Heap Sort",
-            ],
-        )
-        self.radio_algorithm.on_clicked(self.select_algorithm)
 
         self.btn_start = Button(ax_start, "Start")
-        self.btn_start.on_clicked(self.start_visualization)
+        self.btn_start.on_clicked(self.compare_algorithms)
 
         self.btn_new_array = Button(ax_new_array, "New Array")
         self.btn_new_array.on_clicked(self.new_array)
-
-        self.btn_compare = Button(ax_compare, "Compare")
-        self.btn_compare.on_clicked(self.compare_algorithms)
 
         self.slider_array_size = Slider(
             ax_array_size,
@@ -269,17 +241,20 @@ class buttons:
         )
         self.slider_array_size.on_changed(self.update_array_size)
 
+        alg_labels = [
+            "Bubble Sort",
+            "Selection Sort",
+            "Insertion Sort",
+            "Merge Sort",
+            "Quick Sort",
+            "Heap Sort",
+        ]
+        initial_states = [label in self.selected_algorithms for label in alg_labels]
+
         self.checkboxes = CheckButtons(
             ax_checkboxes,
-            [
-                "Bubble Sort",
-                "Selection Sort",
-                "Insertion Sort",
-                "Merge Sort",
-                "Quick Sort",
-                "Heap Sort",
-            ],
-            [False] * 6,
+            alg_labels,
+            initial_states,
         )
         self.checkboxes.on_clicked(self.toggle_algorithm)
 

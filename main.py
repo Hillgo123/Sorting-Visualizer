@@ -4,7 +4,11 @@ import random
 
 
 class sorting_algorithm_visualizer:
-    """Visualizes the sorting algorithm"""
+    """Visualizes the sorting algorithm
+    
+    Args:
+        operation_delay: The delay between each operation
+    """
 
     def __init__(self, operation_delay: float):
         self.operation_delay = operation_delay
@@ -47,10 +51,12 @@ class algorithms:
             None
         """
 
-        for i in range(len(arr)):
-            for j in range(0, len(arr) - i - 1):
+        for i in range(len(arr)):  # Loop through the array
+            for j in range(0, len(arr) - i - 1):  # Loop through the unsorted part of the array
+                # If the current element is greater than the next element swap the current element with the next element
                 if arr[j] > arr[j + 1]:
                     arr[j], arr[j + 1] = arr[j + 1], arr[j]
+
                 visualizer.display_bar(arr, j + 1)
 
         btn_handler.create_btns()
@@ -65,12 +71,16 @@ class algorithms:
             None
         """
 
+        # Loop through the array
         for i in range(len(arr)):
-            min_idx = i
+            min_idx = i  # Set the minimum index to the current index
+            # Loop through the remaining elements in the array
             for j in range(i + 1, len(arr)):
-                if arr[j] < arr[min_idx]:
-                    min_idx = j
-            arr[i], arr[min_idx] = arr[min_idx], arr[i]
+                if (arr[j] < arr[min_idx]):  # If the current element is less than the minimum element
+                    min_idx = j  # Set the minimum index to the current index
+
+            arr[i], arr[min_idx] = (arr[min_idx], arr[i])  # Swap the current element with the minimum element
+
             visualizer.display_bar(arr, i)
 
         btn_handler.create_btns()
@@ -85,13 +95,21 @@ class algorithms:
             None
         """
 
+        # Loop through the array starting at index 1
         for i in range(1, len(arr)):
+            # Set the key to the current element
             key = arr[i]
+            # Set j to the previous index
             j = i - 1
+            # While j is greater than or equal to 0 and the element at j is greater than the key
             while j >= 0 and key < arr[j]:
+                # Shift the element at j to the right
                 arr[j + 1] = arr[j]
+                # Decrement j
                 j -= 1
+            # Insert the key at the correct position
             arr[j + 1] = key
+
             visualizer.display_bar(arr, j)
 
         btn_handler.create_btns()
@@ -119,15 +137,19 @@ class algorithms:
 
             result = []
             i = j = 0
+            # Loop through both arrays until one of them is fully traversed
             while i < len(left) and j < len(right):
+                # If the current element in the left array is less than the current element in the right array append the current element in the left array to the result array and move to the next element in the left array
                 if left[i] < right[j]:
                     result.append(left[i])
                     i += 1
+                # Otherwise, append the current element in the right array to the result array and move to the next element in the right array
                 else:
                     result.append(right[j])
                     j += 1
-            result.extend(left[i:])
-            result.extend(right[j:])
+            result.extend(left[i:])  # Append any remaining elements in the left array to the result array
+            result.extend(right[j:])  # Append any remaining elements in the right array to the result array
+
             return result
 
         def merge_sort_recursive(arr: list) -> list:
@@ -140,15 +162,19 @@ class algorithms:
                 The sorted array
             """
 
+            # If the array has only one element or is empty, it is already sorted
             if len(arr) <= 1:
                 return arr
 
-            mid = len(arr) // 2
-            left = merge_sort_recursive(arr[:mid])
-            right = merge_sort_recursive(arr[mid:])
-            return merge(left, right)
+            mid = len(arr) // 2 # Find the middle index of the array
+            left = merge_sort_recursive(arr[:mid]) # Recursively sort the left half of the array
+            right = merge_sort_recursive(arr[mid:]) # Recursively sort the right half of the array
+            return merge(left, right) # Merge the sorted left and right halves of the array
 
+        # Sort the array using merge sort
         sorted_arr = merge_sort_recursive(arr)
+
+        # Replace the original array with the sorted array
         for i, value in enumerate(sorted_arr):
             arr[i] = value
             visualizer.display_bar(arr, i)
@@ -176,15 +202,21 @@ class algorithms:
                 The index of the pivot element
             """
 
-            pivot = arr[high]
-            i = low - 1
+            pivot = arr[high] # Set the pivot to the last element in the array
+            i = low - 1 # Set i to the index before the first element in the array
+            
+            # Loop through the array from low to high - 1, if the current element is less than the pivot increment i and swap the current element with the element at i
             for j in range(low, high):
                 if arr[j] < pivot:
                     i += 1
                     arr[i], arr[j] = arr[j], arr[i]
+                    
                     visualizer.display_bar(arr, j)
-            arr[i + 1], arr[high] = arr[high], arr[i + 1]
+            
+            arr[i + 1], arr[high] = arr[high], arr[i + 1] # Swap the pivot with the element at i + 1
+            
             visualizer.display_bar(arr, i + 1)
+            # Return the index of the pivot
             return i + 1
 
         def quick_sort_recursive(low: int, high: int) -> None:
@@ -198,11 +230,13 @@ class algorithms:
                 None
             """
 
+            # If low is less than high, partition the array and recursively sort the left and right halves of the array
             if low < high:
                 pi = partition(low, high)
                 quick_sort_recursive(low, pi - 1)
                 quick_sort_recursive(pi + 1, high)
 
+        # Sort the entire array using quick sort
         quick_sort_recursive(0, len(arr) - 1)
         btn_handler.create_btns()
 
@@ -227,29 +261,37 @@ class algorithms:
                 None
             """
 
-            largest = i
+            largest = i # Set the largest index to i
+            # Calculate the indices of the left and right children of i
             left = 2 * i + 1
             right = 2 * i + 2
 
+            # If the left child is within the bounds of the array and is greater than the current largest element set the largest index to the left child
             if left < n and arr[left] > arr[largest]:
                 largest = left
 
+            # If the right child is within the bounds of the array and is greater than the current largest element set the largest index to the right child
             if right < n and arr[right] > arr[largest]:
                 largest = right
 
+            # If the largest index is not i, swap the elements at i and largest and recursively heapify the affected subtree
             if largest != i:
                 arr[i], arr[largest] = arr[largest], arr[i]
+                
                 visualizer.display_bar(arr, i)
                 heapify(n, largest)
 
-        n = len(arr)
+        # Build a max heap by calling heapify on each non-leaf node in the array
+        for i in range(len(arr) // 2 - 1, -1, -1):
+            heapify(len(arr), i)
 
-        for i in range(n // 2 - 1, -1, -1):
-            heapify(n, i)
-
-        for i in range(n - 1, 0, -1):
+        # Sort the array by repeatedly swapping the first and last elements and heapifying the remaining elements
+        for i in range(len(arr) - 1, 0, -1):
+            # Swap the first and last elements of the unsorted portion of the array
             arr[i], arr[0] = arr[0], arr[i]
+            
             visualizer.display_bar(arr, i)
+            # Heapify the remaining elements to maintain the max heap property
             heapify(i, 0)
 
         btn_handler.create_btns()
@@ -302,9 +344,10 @@ class buttons:
         """
 
         global arr
+        # Make sure the array isn't already sorted
         if self.last_arr == len(arr):
             arr = [random.randint(1, 100) for _ in range(self.last_arr)]
-        visualizer.operations = 0
+        visualizer.operations = 0 # Reset the number of operations
         visualizer.display_bar(arr)
         self.create_btns()
         self.last_arr = len(arr)
@@ -362,6 +405,7 @@ class buttons:
             None
         """
 
+        # Plot the buttons
         ax_checkboxes = plt.axes(tuple([0.05, 0.05, 0.2, 0.2]))
         ax_start = plt.axes(tuple([0.35, 0.05, 0.25, 0.075]))
         ax_new_array = plt.axes(tuple([0.65, 0.05, 0.25, 0.075]))
@@ -392,7 +436,7 @@ class buttons:
             "Quick Sort",
             "Heap Sort",
         ]
-        initial_states = [label in self.selected_algorithms for label in alg_labels]
+        initial_states = [label in self.selected_algorithms for label in alg_labels] # Check the boxes for the selected algorithms
 
         self.checkboxes = CheckButtons(
             ax_checkboxes,
@@ -421,8 +465,7 @@ class buttons:
             "Heap Sort": algorithm.heap_sort,
         }
 
-        # If the algorithm is already selected, remove it from the selected algorithms
-        # Otherwise, add it to the selected algorithms
+        # If the algorithm is already selected, remove it from the selected algorithms, otherwise, add it to the selected algorithms
         if label in self.selected_algorithms:
             del self.selected_algorithms[label]
         else:
